@@ -1,0 +1,537 @@
+[
+  {
+    "id": "animal_cat",
+    "version": "1.0.0",
+    "status": "validated",
+    "core": {
+      "emoji": "🐱",
+      "thai": "แมว",
+      "romanization": {
+        "simple": "maew",
+        "rtgs": "maew",
+        "with_tone": "mɛ̌w"
+      },
+      "translation": {
+        "fr": "chat",
+        "en": "cat"
+      }
+    },
+    "linguistic": {
+      "word_type": "noun",
+      "classifier": "ตัว",
+      "syllables": [
+        {
+          "thai": "แมว",
+          "romanization": "maew",
+          "tone": "falling"
+        }
+      ],
+      "register": "neutral",
+      "politeness": "neutral"
+    },
+    "audio": {
+      "tts_provider": "openai",
+      "voice": "thai_female_01",
+      "audio_key": "animal_cat_th_normal",
+      "variants": {
+        "slow": "animal_cat_th_slow",
+        "normal": "animal_cat_th_normal",
+        "fast": "animal_cat_th_fast"
+      }
+    },
+    "learning": {
+      "level": "A1",
+      "priority": 1,
+      "frequency": "common",
+      "difficulty_score": 1,
+      "recommended_order": 1,
+      "skills": ["recognition", "listening", "speaking", "reading"]
+    },
+    "usage": {
+      "contexts": ["animals", "pets"],
+      "example_sentences": [
+        {
+          "id": "animal_cat_ex_01",
+          "thai": "ฉันมีแมว",
+          "romanization": "chǎn mii mɛ̌w",
+          "fr": "J'ai un chat.",
+          "en": "I have a cat.",
+          "audio_key": "animal_cat_ex_01_normal"
+        }
+      ],
+      "common_phrases": [
+        {
+          "thai": "สองตัวแมว",
+          "romanization": "sɔ̌ɔng tua mɛ̌w",
+          "fr": "deux chats",
+          "en": "two cats"
+        }
+      ]
+    },
+    "memory": {
+      "mnemonic_fr": "แมว sounds like 'maew', think of a meowing cat.",
+      "visual_strength": 5,
+      "emotional_tag": "cute",
+      "image_prompt": "A cute Thai cat, simple educational illustration."
+    },
+    "relations": {
+      "same_category": ["animal_dog", "animal_rabbit"],
+      "related_words": ["pet", "animal", "cute", "tail"],
+      "confusable_with": []
+    },
+    "quiz": {
+      "enabled": true,
+      "question_types": ["thai_to_fr", "fr_to_thai", "audio_to_meaning", "emoji_to_thai"],
+      "distractors": ["animal_dog", "animal_rabbit", "animal_elephant"]
+    },
+    "user_progress_template": {
+      "seen_count": 0,
+      "correct_count": 0,
+      "wrong_count": 0,
+      "mastery_score": 0,
+      "last_seen_at": null,
+      "next_review_at": null,
+      "ease_factor": 2.5,
+      "interval_days": 0,
+      "is_mastered": false
+    },
+    "metadata": {
+      "created_at": "2026-05-02",
+      "updated_at": "2026-05-02",
+      "source": "manual_ai_validated",
+      "notes": "Common pet animal."
+    }
+  },
+  {
+    "id": "person_friend",
+    "version": "1.0.0",
+    "status": "validated",
+    "core": {
+      "emoji": "👫",
+      "thai": "เพื่อน",
+      "romanization": {
+        "simple": "phuen",
+        "rtgs": "phuean",
+        "with_tone": "pʰɯ̂an"
+      },
+      "translation": {
+        "fr": "ami",
+        "en": "friend"
+      }
+    },
+    "linguistic": {
+      "word_type": "noun",
+      "classifier": "คน",
+      "syllables": [
+        {
+          "thai": "เพื่อน",
+          "romanization": "phuen",
+          "tone": "rising"
+        }
+      ],
+      "register": "neutral",
+      "politeness": "neutral"
+    },
+    "audio": {
+      "tts_provider": "openai",
+      "voice": "thai_female_01",
+      "audio_key": "person_friend_th_normal",
+      "variants": {
+        "slow": "person_friend_th_slow",
+        "normal": "person_friend_th_normal",
+        "fast": "person_friend_th_fast"
+      }
+    },
+    "learning": {
+      "level": "A1",
+      "priority": 2,
+      "frequency": "common",
+      "difficulty_score": 2,
+      "recommended_order": 3,
+      "skills": ["recognition", "listening", "speaking"]
+    },
+    "usage": {
+      "contexts": ["people", "relationships", "social"],
+      "example_sentences": [
+        {
+          "id": "person_friend_ex_01",
+          "thai": "เขาเป็นเพื่อนของฉัน",
+          "romanization": "khǎo bpen pʰɯ̂an khɔɔng chǎn",
+          "fr": "Il est mon ami.",
+          "en": "He is my friend.",
+          "audio_key": "person_friend_ex_01_normal"
+        }
+      ],
+      "common_phrases": [
+        {
+          "thai": "สามคนเพื่อน",
+          "romanization": "sǎam khon pʰɯ̂an",
+          "fr": "trois amis",
+          "en": "three friends"
+        }
+      ]
+    },
+    "memory": {
+      "mnemonic_fr": "เพื่อน = 'phuen' a friendly sound, like meeting a friend.",
+      "visual_strength": 4,
+      "emotional_tag": "friendly",
+      "image_prompt": "Two friends together, simple illustration."
+    },
+    "relations": {
+      "same_category": ["person_family", "person_teacher"],
+      "related_words": ["good", "kind", "together", "love"],
+      "confusable_with": []
+    },
+    "quiz": {
+      "enabled": true,
+      "question_types": ["thai_to_fr", "fr_to_thai", "audio_to_meaning"],
+      "distractors": ["person_family", "person_teacher", "person_person"]
+    },
+    "user_progress_template": {
+      "seen_count": 0,
+      "correct_count": 0,
+      "wrong_count": 0,
+      "mastery_score": 0,
+      "last_seen_at": null,
+      "next_review_at": null,
+      "ease_factor": 2.5,
+      "interval_days": 0,
+      "is_mastered": false
+    },
+    "metadata": {
+      "created_at": "2026-05-02",
+      "updated_at": "2026-05-02",
+      "source": "manual_ai_validated",
+      "notes": "Essential relationship word."
+    }
+  },
+  {
+    "id": "object_book",
+    "version": "1.0.0",
+    "status": "validated",
+    "core": {
+      "emoji": "📚",
+      "thai": "หนังสือ",
+      "romanization": {
+        "simple": "nangsue",
+        "rtgs": "nangsue",
+        "with_tone": "nǎŋ síʔ"
+      },
+      "translation": {
+        "fr": "livre",
+        "en": "book"
+      }
+    },
+    "linguistic": {
+      "word_type": "noun",
+      "classifier": "เล่ม",
+      "syllables": [
+        {
+          "thai": "หนัง",
+          "romanization": "nang",
+          "tone": "high"
+        },
+        {
+          "thai": "สือ",
+          "romanization": "sue",
+          "tone": "high"
+        }
+      ],
+      "register": "neutral",
+      "politeness": "neutral"
+    },
+    "audio": {
+      "tts_provider": "openai",
+      "voice": "thai_female_01",
+      "audio_key": "object_book_th_normal",
+      "variants": {
+        "slow": "object_book_th_slow",
+        "normal": "object_book_th_normal",
+        "fast": "object_book_th_fast"
+      }
+    },
+    "learning": {
+      "level": "A1",
+      "priority": 3,
+      "frequency": "common",
+      "difficulty_score": 2,
+      "recommended_order": 5,
+      "skills": ["recognition", "listening", "reading"]
+    },
+    "usage": {
+      "contexts": ["school", "education", "objects"],
+      "example_sentences": [
+        {
+          "id": "object_book_ex_01",
+          "thai": "ฉันอ่านหนังสือ",
+          "romanization": "chǎn àan nǎŋ síʔ",
+          "fr": "Je lis un livre.",
+          "en": "I read a book.",
+          "audio_key": "object_book_ex_01_normal"
+        }
+      ],
+      "common_phrases": [
+        {
+          "thai": "สองเล่มหนังสือ",
+          "romanization": "sɔ̌ɔng lem nǎŋ síʔ",
+          "fr": "deux livres",
+          "en": "two books"
+        }
+      ]
+    },
+    "memory": {
+      "mnemonic_fr": "หนังสือ = 'nangsue', think of a book with many pages.",
+      "visual_strength": 5,
+      "emotional_tag": "educational",
+      "image_prompt": "An open Thai book with colorful pages."
+    },
+    "relations": {
+      "same_category": ["object_pen", "object_paper"],
+      "related_words": ["read", "school", "learn", "knowledge"],
+      "confusable_with": []
+    },
+    "quiz": {
+      "enabled": true,
+      "question_types": ["thai_to_fr", "fr_to_thai", "emoji_to_thai"],
+      "distractors": ["object_pen", "object_paper", "object_pencil"]
+    },
+    "user_progress_template": {
+      "seen_count": 0,
+      "correct_count": 0,
+      "wrong_count": 0,
+      "mastery_score": 0,
+      "last_seen_at": null,
+      "next_review_at": null,
+      "ease_factor": 2.5,
+      "interval_days": 0,
+      "is_mastered": false
+    },
+    "metadata": {
+      "created_at": "2026-05-02",
+      "updated_at": "2026-05-02",
+      "source": "manual_ai_validated",
+      "notes": "Essential school vocabulary."
+    }
+  },
+  {
+    "id": "nature_leaf",
+    "version": "1.0.0",
+    "status": "validated",
+    "core": {
+      "emoji": "🍃",
+      "thai": "ใบไม้",
+      "romanization": {
+        "simple": "bai mai",
+        "rtgs": "bai mai",
+        "with_tone": "bai mái"
+      },
+      "translation": {
+        "fr": "feuille",
+        "en": "leaf"
+      }
+    },
+    "linguistic": {
+      "word_type": "noun",
+      "classifier": "ใบ",
+      "syllables": [
+        {
+          "thai": "ใบ",
+          "romanization": "bai",
+          "tone": "mid"
+        },
+        {
+          "thai": "ไม้",
+          "romanization": "mai",
+          "tone": "rising"
+        }
+      ],
+      "register": "neutral",
+      "politeness": "neutral"
+    },
+    "audio": {
+      "tts_provider": "openai",
+      "voice": "thai_female_01",
+      "audio_key": "nature_leaf_th_normal",
+      "variants": {
+        "slow": "nature_leaf_th_slow",
+        "normal": "nature_leaf_th_normal",
+        "fast": "nature_leaf_th_fast"
+      }
+    },
+    "learning": {
+      "level": "A1",
+      "priority": 4,
+      "frequency": "common",
+      "difficulty_score": 2,
+      "recommended_order": 7,
+      "skills": ["recognition", "listening", "reading"]
+    },
+    "usage": {
+      "contexts": ["nature", "plants", "environment"],
+      "example_sentences": [
+        {
+          "id": "nature_leaf_ex_01",
+          "thai": "ใบไม้เขียว",
+          "romanization": "bai mái khǐaw",
+          "fr": "La feuille est verte.",
+          "en": "The leaf is green.",
+          "audio_key": "nature_leaf_ex_01_normal"
+        }
+      ],
+      "common_phrases": [
+        {
+          "thai": "ห้าใบไม้",
+          "romanization": "hâa bai mái",
+          "fr": "cinq feuilles",
+          "en": "five leaves"
+        }
+      ]
+    },
+    "memory": {
+      "mnemonic_fr": "ใบไม้ = 'bai mai', 'bai' sounds like the classifier itself.",
+      "visual_strength": 5,
+      "emotional_tag": "natural",
+      "image_prompt": "Green leaves on a tree branch."
+    },
+    "relations": {
+      "same_category": ["nature_tree", "nature_flower", "nature_grass"],
+      "related_words": ["green", "plant", "tree", "nature"],
+      "confusable_with": []
+    },
+    "quiz": {
+      "enabled": true,
+      "question_types": ["thai_to_fr", "fr_to_thai", "emoji_to_thai"],
+      "distractors": ["nature_tree", "nature_flower", "nature_grass"]
+    },
+    "user_progress_template": {
+      "seen_count": 0,
+      "correct_count": 0,
+      "wrong_count": 0,
+      "mastery_score": 0,
+      "last_seen_at": null,
+      "next_review_at": null,
+      "ease_factor": 2.5,
+      "interval_days": 0,
+      "is_mastered": false
+    },
+    "metadata": {
+      "created_at": "2026-05-02",
+      "updated_at": "2026-05-02",
+      "source": "manual_ai_validated",
+      "notes": "Nature vocabulary with flat object classifier."
+    }
+  },
+  {
+    "id": "feeling_happy",
+    "version": "1.0.0",
+    "status": "validated",
+    "core": {
+      "emoji": "😊",
+      "thai": "มีความสุข",
+      "romanization": {
+        "simple": "mi khwam suk",
+        "rtgs": "mi khwam suk",
+        "with_tone": "mii khwaam súk"
+      },
+      "translation": {
+        "fr": "être heureux",
+        "en": "to be happy"
+      }
+    },
+    "linguistic": {
+      "word_type": "verb_phrase",
+      "classifier": null,
+      "syllables": [
+        {
+          "thai": "มี",
+          "romanization": "mi",
+          "tone": "mid"
+        },
+        {
+          "thai": "ความ",
+          "romanization": "khwam",
+          "tone": "mid"
+        },
+        {
+          "thai": "สุข",
+          "romanization": "suk",
+          "tone": "high"
+        }
+      ],
+      "register": "neutral",
+      "politeness": "neutral"
+    },
+    "audio": {
+      "tts_provider": "openai",
+      "voice": "thai_female_01",
+      "audio_key": "feeling_happy_th_normal",
+      "variants": {
+        "slow": "feeling_happy_th_slow",
+        "normal": "feeling_happy_th_normal",
+        "fast": "feeling_happy_th_fast"
+      }
+    },
+    "learning": {
+      "level": "A1",
+      "priority": 5,
+      "frequency": "common",
+      "difficulty_score": 2,
+      "recommended_order": 9,
+      "skills": ["recognition", "listening", "speaking"]
+    },
+    "usage": {
+      "contexts": ["feelings", "emotions", "expressions"],
+      "example_sentences": [
+        {
+          "id": "feeling_happy_ex_01",
+          "thai": "ฉันมีความสุข",
+          "romanization": "chǎn mii khwaam súk",
+          "fr": "Je suis heureux.",
+          "en": "I am happy.",
+          "audio_key": "feeling_happy_ex_01_normal"
+        }
+      ],
+      "common_phrases": [
+        {
+          "thai": "มีความสุขมาก",
+          "romanization": "mii khwaam súk mâak",
+          "fr": "très heureux",
+          "en": "very happy"
+        }
+      ]
+    },
+    "memory": {
+      "mnemonic_fr": "มีความสุข = 'mi khwam suk', happiness is a feeling/state.",
+      "visual_strength": 4,
+      "emotional_tag": "positive",
+      "image_prompt": "A smiling Thai face with hearts."
+    },
+    "relations": {
+      "same_category": ["feeling_sad", "feeling_tired", "feeling_excited"],
+      "related_words": ["joy", "glad", "content", "smile"],
+      "confusable_with": ["feeling_sad"]
+    },
+    "quiz": {
+      "enabled": true,
+      "question_types": ["thai_to_fr", "fr_to_thai", "audio_to_meaning"],
+      "distractors": ["feeling_sad", "feeling_tired", "feeling_excited"]
+    },
+    "user_progress_template": {
+      "seen_count": 0,
+      "correct_count": 0,
+      "wrong_count": 0,
+      "mastery_score": 0,
+      "last_seen_at": null,
+      "next_review_at": null,
+      "ease_factor": 2.5,
+      "interval_days": 0,
+      "is_mastered": false
+    },
+    "metadata": {
+      "created_at": "2026-05-02",
+      "updated_at": "2026-05-02",
+      "source": "manual_ai_validated",
+      "notes": "Abstract feeling, no classifier needed."
+    }
+  }
+]
