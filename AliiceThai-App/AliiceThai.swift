@@ -9,7 +9,7 @@ struct AliiceThai: App {
         WindowGroup {
             ZStack {
                 if gameState.hasCompletedOnboarding {
-                    DashboardView()
+                    HomeView()
                 } else {
                     OnboardingView()
                 }

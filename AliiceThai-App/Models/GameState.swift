@@ -255,4 +255,26 @@ class GameState: ObservableObject {
         classifierAttempts.removeAll()
         saveState()
     }
+
+    // MARK: - Output Practice Tracking Methods
+
+    func recordOutputPractice(wordId: String) {
+        outputPracticedWords.insert(wordId)
+        let currentCount = outputTasksCompleted[wordId] ?? 0
+        outputTasksCompleted[wordId] = currentCount + 1
+        saveState()
+    }
+
+    func isWordOutputPracticed(_ wordId: String) -> Bool {
+        return outputPracticedWords.contains(wordId)
+    }
+
+    func getOutputTaskCompletions(_ wordId: String) -> Int {
+        return outputTasksCompleted[wordId] ?? 0
+    }
+
+    func getOutputPracticedCount() -> Int {
+        return outputPracticedWords.count
+    }
 }
+

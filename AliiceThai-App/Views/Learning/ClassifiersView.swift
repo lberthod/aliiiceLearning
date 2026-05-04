@@ -447,7 +447,7 @@ struct QuizScoreView: View {
                 Text("\(accuracyPercentage)%")
                     .font(.system(size: 48, weight: .bold))
                     .foregroundColor(.white)
-                ProgressView(value: Double(correctCount) / Double(totalQuestions))
+                ProgressView(value: Double(correctCount), total: Double(totalQuestions))
                     .tint(.green)
                     .frame(height: 6)
             }

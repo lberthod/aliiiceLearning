@@ -196,7 +196,7 @@ struct ToneLessonCard: View {
 
             if accuracy > 0 {
                 HStack(spacing: 8) {
-                    ProgressView(value: Double(accuracy) / 100)
+                    ProgressView(value: Double(accuracy), total: 100)
                         .tint(Color(red: 0.2, green: 0.8, blue: 0.2))
 
                     Text("\(accuracy)%")
@@ -381,7 +381,7 @@ struct WeakToneCard: View {
                     .foregroundColor(Color(red: 1.0, green: 0.6, blue: 0.2))
             }
 
-            ProgressView(value: Double(accuracy) / 100)
+            ProgressView(value: Double(accuracy), total: 100)
                 .tint(Color(red: 1.0, green: 0.6, blue: 0.2))
 
             Text(localization.localize("tone.weak.focus"))

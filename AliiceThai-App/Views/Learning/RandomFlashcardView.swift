@@ -130,7 +130,7 @@ struct RandomFlashcardView: View {
 
                             Spacer()
 
-                            ProgressView(value: Double(currentIndex + 1) / Double(shuffledPhrases.count))
+                            ProgressView(value: Double(currentIndex + 1), total: Double(shuffledPhrases.count))
                                 .frame(maxWidth: .infinity)
                                 .tint(.yellow)
 

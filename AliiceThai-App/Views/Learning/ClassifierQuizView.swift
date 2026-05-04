@@ -58,7 +58,7 @@ struct ClassifierQuizView: View {
             VStack(spacing: 0) {
         
                 // Progress bar
-                ProgressView(value: Double(questionNumber) / Double(totalQuestions))
+                ProgressView(value: Double(questionNumber), total: Double(totalQuestions))
                     .tint(.cyan)
                     .frame(height: 4)
 

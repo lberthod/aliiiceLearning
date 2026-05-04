@@ -89,7 +89,7 @@ struct OutputTasksView: View {
                                     .foregroundColor(.white.opacity(0.7))
                             }
 
-                            ProgressView(value: Double(taskIndex) / Double(totalTasks))
+                            ProgressView(value: Double(taskIndex), total: Double(totalTasks))
                                 .progressViewStyle(LinearProgressViewStyle(tint: Color(red: 1.0, green: 0.75, blue: 0.3)))
                         }
                         .padding(16)
@@ -173,7 +173,7 @@ struct ShadowingTaskView: View {
                     .foregroundColor(.white.opacity(0.7))
 
                 Button {
-                    audioManager.playWord(wordId: word.id)
+                    audioManager.playWord(thaiWord: word.core.thai)
                 } label: {
                     Image(systemName: "speaker.wave.3.fill")
                         .font(.system(size: 40))
@@ -402,7 +402,7 @@ struct TranscriptionTaskView: View {
 
             // Play button
             Button {
-                audioManager.playWord(wordId: word.id)
+                audioManager.playWord(thaiWord: word.core.thai)
             } label: {
                 Image(systemName: "speaker.wave.3.fill")
                     .font(.system(size: 40))

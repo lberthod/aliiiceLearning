@@ -69,7 +69,7 @@ struct ToneDetectionQuizView: View {
                             .fontWeight(.semibold)
                     }
 
-                    ProgressView(value: Double(questionIndex) / Double(totalQuestions))
+                    ProgressView(value: Double(questionIndex), total: Double(totalQuestions))
                         .tint(.cyan)
                 }
                 .padding()

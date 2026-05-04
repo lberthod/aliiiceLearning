@@ -142,7 +142,7 @@ struct PhrasesFlashcardView: View {
 
                 Spacer()
 
-                ProgressView(value: Double(currentIndex + 1) / Double(phrases.count))
+                ProgressView(value: Double(currentIndex + 1), total: Double(phrases.count))
                     .frame(maxWidth: .infinity)
                     .tint(.yellow)
 
