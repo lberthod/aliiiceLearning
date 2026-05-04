@@ -124,7 +124,7 @@ struct CurriculumPathView: View {
                                         .lineLimit(3)
                                 }
 
-                                NavigationLink(destination: EmptyView()) {
+                                NavigationLink(destination: MissionsView()) {
                                     HStack {
                                         Text(localization.localize("curriculum.start_mission"))
                                             .font(.caption)

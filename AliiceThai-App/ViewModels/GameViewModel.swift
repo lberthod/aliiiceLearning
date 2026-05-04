@@ -68,16 +68,33 @@ class GameViewModel: ObservableObject {
 
         var options: [Word] = [current]
 
-        // Try to get 3 other words from same category
-        let otherWordsInCategory = allWords.filter { $0.id != current.id && $0.category == selectedCategory }
-        let shuffledInCategory = otherWordsInCategory.shuffled()
+        // 50% chance: Use confusable word distractors if available
+        let useConfusableDisractors = Bool.random() && hasConfusablePairs(for: current.id)
 
-        let fromCategory = min(3, shuffledInCategory.count)
-        for i in 0..<fromCategory {
-            options.append(shuffledInCategory[i])
+        if useConfusableDisractors {
+            // Get confusable word IDs from wrappedWords
+            if let wrappedCurrent = wrappedWords.first(where: { $0.id == current.id }) {
+                let confusableIds = wrappedCurrent.relations.confusable_with.map { $0.id }
+
+                // Add confusable words as distractors
+                for confusableId in confusableIds.prefix(3) {
+                    if let confusableWord = allWords.first(where: { $0.id == confusableId }) {
+                        options.append(confusableWord)
+                    }
+                }
+            }
+        } else {
+            // Original logic: Try to get 3 other words from same category
+            let otherWordsInCategory = allWords.filter { $0.id != current.id && $0.category == selectedCategory }
+            let shuffledInCategory = otherWordsInCategory.shuffled()
+
+            let fromCategory = min(3, shuffledInCategory.count)
+            for i in 0..<fromCategory {
+                options.append(shuffledInCategory[i])
+            }
         }
 
-        // If we need more options, get from other categories
+        // If we still need more options, get from other categories
         if options.count < 4 {
             let otherCategoryWords = allWords.filter { $0.category != selectedCategory }
             let shuffledOthers = otherCategoryWords.shuffled()
@@ -94,6 +111,14 @@ class GameViewModel: ObservableObject {
 
         quizOptions = options.shuffled()
         return quizOptions
+    }
+
+    // Helper function to check if word has confusable pairs
+    private func hasConfusablePairs(for wordId: String) -> Bool {
+        guard let wrappedWord = wrappedWords.first(where: { $0.id == wordId }) else {
+            return false
+        }
+        return !wrappedWord.relations.confusable_with.isEmpty
     }
 
     func isCorrectAnswer(_ word: Word) -> Bool {
@@ -155,5 +180,17 @@ class GameViewModel: ObservableObject {
     func recordClassifierAttempt(classifierId: String, isCorrect: Bool) {
         let gameState = GameState.shared
         gameState.recordClassifierAttempt(classifierId: classifierId, isCorrect: isCorrect)
+    }
+
+    // MARK: - Speaking Level Calculation
+
+    func calculateSpeakingLevel() -> SpeakingLevel {
+        let gameState = GameState.shared
+        return SpeakingLevel.calculate(
+            wordStats: wordStats,
+            toneAccuracyByWord: gameState.toneAccuracyByWord,
+            outputPracticedWords: gameState.outputPracticedWords,
+            learnedPhrases: gameState.learnedPhrases
+        )
     }
 }

@@ -21,6 +21,8 @@ class PronunciationManager: NSObject, ObservableObject, AVAudioRecorderDelegate 
     private var audioRecorder: AVAudioRecorder?
     private var recordingURL: URL?
     private var timer: Timer?
+    private var currentWordId: String?
+    private var currentWord: WrappedWord?
 
     override init() {
         super.init()
@@ -39,6 +41,10 @@ class PronunciationManager: NSObject, ObservableObject, AVAudioRecorderDelegate 
 
     func startRecording(forWordId wordId: String) {
         guard !isRecording else { return }
+
+        // Store word ID and word info for later analysis
+        currentWordId = wordId
+        currentWord = JSONWordParser.shared.getWord(id: wordId)
 
         let filename = getDocumentsDirectory().appendingPathComponent("pronunciation_\(wordId)_\(Date().timeIntervalSince1970).m4a")
         recordingURL = filename
@@ -81,13 +87,15 @@ class PronunciationManager: NSObject, ObservableObject, AVAudioRecorderDelegate 
     }
 
     private func analyzeRecording(url: URL) async {
-        // Step 1: Generate mock feedback (Whisper integration deferred to Phase 2)
-        // In production, this would call Whisper API for transcription
-        let mockTranscription = generateMockTranscription()
+        // Step 1: Transcribe with Whisper API
+        let transcription = await WhisperAPI.shared.transcribeAudio(fileURL: url, language: "th")
+        let finalTranscription = transcription ?? "ไม่ได้บันทึก"
 
-        // Step 2: Generate feedback based on transcription
+        // Step 2: Generate feedback based on transcription and word info
         let feedbackResult = await generatePronunciationFeedback(
-            transcription: mockTranscription
+            transcription: finalTranscription,
+            wordId: currentWordId,
+            word: currentWord
         )
 
         DispatchQueue.main.async {
@@ -96,107 +104,73 @@ class PronunciationManager: NSObject, ObservableObject, AVAudioRecorderDelegate 
         }
     }
 
-    private func generateMockTranscription() -> String {
-        // TODO: Replace with actual Whisper API call in Phase 2
-        return "แมว"  // Mock transcription
-    }
-
-    private func generatePronunciationFeedback(transcription: String) async -> PronunciationFeedback {
+    private func generatePronunciationFeedback(
+        transcription: String,
+        wordId: String?,
+        word: WrappedWord?
+    ) async -> PronunciationFeedback {
         // Use DeepSeek v4 flash for intelligent feedback
-        let feedback = await callDeepSeekForFeedback(transcription: transcription)
+        let feedback = await callDeepSeekForFeedback(
+            transcription: transcription,
+            wordId: wordId,
+            word: word
+        )
         return feedback
     }
 
-    private func callDeepSeekForFeedback(transcription: String) async -> PronunciationFeedback {
-        let apiKey = ProcessInfo.processInfo.environment["DEEPSEEK_API_KEY"] ?? ""
-
-        guard !apiKey.isEmpty else {
-            print("⚠️  DEEPSEEK_API_KEY not found, returning mock feedback")
+    private func callDeepSeekForFeedback(
+        transcription: String,
+        wordId: String?,
+        word: WrappedWord?
+    ) async -> PronunciationFeedback {
+        guard let word = word else {
+            print("⚠️  Word information not found, returning mock feedback")
             return makeMockFeedback()
         }
 
-        let prompt = """
-        You are a Thai language pronunciation expert. Analyze this pronunciation attempt:
+        // Use DeepseekAPI wrapper for pronunciation feedback
+        let deepseekFeedback = await DeepseekAPI.shared.getPronunciationFeedback(
+            word: word.core.thai,
+            whisperTranscription: transcription,
+            correctWord: word.core.thai,
+            romanization: word.core.romanization.with_tone
+        )
 
-        Transcription: \(transcription)
+        // Determine if pronunciation is correct by checking transcription
+        let isCorrect = transcription.lowercased() == word.core.thai.lowercased() ||
+                       transcription.lowercased().contains(word.core.thai.lowercased())
 
-        Provide feedback in French in this exact JSON format:
-        {
-          "isCorrect": boolean,
-          "toneAccuracy": 0-100 (how accurate is the tone?),
-          "clarityScore": 0-100 (how clear is the pronunciation?),
-          "feedback": "1-2 sentence feedback in French (max 50 words)"
-        }
+        // Calculate scores based on transcription match
+        let clarityScore = calculateClarityScore(for: transcription)
+        // Tone accuracy: 0% if word completely wrong, 80-100% if correct
+        let toneAccuracy = isCorrect ? Int.random(in: 80...100) : 0
 
-        Only return valid JSON, no markdown.
-        """
+        // Use Deepseek feedback if available, otherwise provide honest fallback
+        let feedbackText = deepseekFeedback ?? (isCorrect
+            ? "Excellent! Ta prononciation est correcte."
+            : "Ce n'est pas le bon mot. Écoute l'exemple et réessaie.")
 
-        var request = URLRequest(url: URL(string: "https://api.deepseek.com/chat/completions")!)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        return PronunciationFeedback(
+            isCorrect: isCorrect,
+            transcription: transcription,
+            toneAccuracy: toneAccuracy,
+            clarityScore: clarityScore,
+            feedback: feedbackText
+        )
+    }
 
-        let body: [String: Any] = [
-            "model": "deepseek-chat",
-            "messages": [
-                ["role": "user", "content": prompt]
-            ],
-            "temperature": 0.7,
-            "max_tokens": 200
-        ]
-
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: body) else {
-            return makeMockFeedback()
-        }
-
-        request.httpBody = jsonData
-
-        do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-                print("❌ DeepSeek API error")
-                return makeMockFeedback()
-            }
-
-            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let choices = json["choices"] as? [[String: Any]],
-               let firstChoice = choices.first,
-               let message = firstChoice["message"] as? [String: Any],
-               let content = message["content"] as? String {
-
-                // Parse JSON response
-                if let feedbackData = content.data(using: .utf8),
-                   let feedbackDict = try JSONSerialization.jsonObject(with: feedbackData) as? [String: Any] {
-
-                    let isCorrect = feedbackDict["isCorrect"] as? Bool ?? true
-                    let toneAccuracy = feedbackDict["toneAccuracy"] as? Int ?? 80
-                    let clarityScore = feedbackDict["clarityScore"] as? Int ?? 80
-                    let feedbackText = feedbackDict["feedback"] as? String ?? "Bonne tentative!"
-
-                    return PronunciationFeedback(
-                        isCorrect: isCorrect,
-                        transcription: transcription,
-                        toneAccuracy: toneAccuracy,
-                        clarityScore: clarityScore,
-                        feedback: feedbackText
-                    )
-                }
-            }
-        } catch {
-            print("❌ DeepSeek request error: \(error)")
-        }
-
-        return makeMockFeedback()
+    private func calculateClarityScore(for transcription: String) -> Int {
+        // Use Whisper's clarity scoring
+        return WhisperAPI.shared.getClarityScore(for: transcription)
     }
 
     private func makeMockFeedback() -> PronunciationFeedback {
         return PronunciationFeedback(
-            isCorrect: true,
-            transcription: "แมว",
-            toneAccuracy: Int.random(in: 70...95),
-            clarityScore: Int.random(in: 75...95),
-            feedback: "Bonne prononciation! La clarté est excellente."
+            isCorrect: false,
+            transcription: "ไม่สามารถบันทึก",
+            toneAccuracy: 0,
+            clarityScore: 0,
+            feedback: "Impossible d'analyser la prononciation. Vérifie ton enregistrement et réessaie."
         )
     }
 

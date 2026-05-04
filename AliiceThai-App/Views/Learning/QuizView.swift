@@ -10,6 +10,8 @@ struct SimpleQuizView: View {
     @State private var showCelebration = false
     @State private var quizOptions: [Word] = []
     @State private var audioOnCooldown = false
+    @State private var deepseekFeedback: String?
+    @State private var isLoadingFeedback = false
 
     var body: some View {
         VStack(spacing: 20) {
@@ -78,8 +80,19 @@ struct SimpleQuizView: View {
                                 gameState.addStar()
                                 AudioManager.shared.playCorrectSound()
                                 showCelebration = true
+
+                                // Track mission progress if word is in current mission
+                                if let currentMission = gameState.currentMission,
+                                   currentMission.vocabulary.contains(option.id) {
+                                    gameState.recordMissionProgress(missionId: currentMission.id)
+                                }
                             } else {
                                 AudioManager.shared.playWrongSound()
+                                // Fetch Deepseek feedback for wrong answer
+                                fetchDeepseekFeedback(
+                                    userAnswer: option,
+                                    correctAnswer: gameViewModel.currentWord
+                                )
                             }
                         }) {
                             VStack(spacing: 8) {
@@ -126,13 +139,38 @@ struct SimpleQuizView: View {
                                     .scaleEffect(showCelebration ? 1.3 : 1.0)
                             }
                         } else {
-                            VStack(spacing: 4) {
+                            VStack(spacing: 8) {
                                 Text(loc.localize("quiz.incorrect"))
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(.yellow)
                                 Text("\(word.emoji) \(gameState.getLocalizedString(word.english, word.french))")
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(.white)
+
+                                // Deepseek Feedback
+                                if isLoadingFeedback {
+                                    HStack(spacing: 8) {
+                                        ProgressView()
+                                            .frame(width: 14, height: 14)
+                                        Text("Analyzing...")
+                                            .font(.caption)
+                                            .foregroundColor(.white.opacity(0.7))
+                                    }
+                                } else if let feedback = deepseekFeedback {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("💡 Tip:")
+                                            .font(.caption)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(Color(red: 1.0, green: 0.75, blue: 0.3))
+                                        Text(feedback)
+                                            .font(.caption)
+                                            .foregroundColor(.white.opacity(0.8))
+                                    }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(8)
+                                    .background(Color.white.opacity(0.08))
+                                    .cornerRadius(6)
+                                }
                             }
                         }
 
@@ -167,6 +205,64 @@ struct SimpleQuizView: View {
         .onAppear {
             quizOptions = gameViewModel.generateQuizOptions()
         }
+    }
+
+    // MARK: - Deepseek Feedback
+
+    private func fetchDeepseekFeedback(userAnswer: Word, correctAnswer: Word?) {
+        guard let correctAnswer = correctAnswer else { return }
+
+        isLoadingFeedback = true
+        deepseekFeedback = nil
+
+        Task {
+            // Check if userAnswer is a confusable word with correctAnswer
+            let isConfusablePair = checkIfConfusablePair(
+                userAnswerId: userAnswer.id,
+                correctAnswerId: correctAnswer.id
+            )
+
+            // Track confusable pair mistake if applicable
+            if isConfusablePair {
+                let pairId = "\(min(userAnswer.id, correctAnswer.id))_\(max(userAnswer.id, correctAnswer.id))"
+                gameState.recordConfusablePairMistake(pairId: pairId)
+            }
+
+            let feedback: String?
+
+            if isConfusablePair {
+                // Use confusable pair feedback
+                feedback = await DeepseekAPI.shared.getConfusablePairFeedback(
+                    word1: correctAnswer.thai,
+                    word2: userAnswer.thai,
+                    translation1: gameState.getLocalizedString(correctAnswer.english, correctAnswer.french),
+                    translation2: gameState.getLocalizedString(userAnswer.english, userAnswer.french)
+                )
+            } else {
+                // Use regular wrong answer feedback
+                feedback = await DeepseekAPI.shared.getWrongAnswerFeedback(
+                    question: "Quel est le sens du mot: \(correctAnswer.thai) (\(correctAnswer.romanization))?",
+                    userAnswer: gameState.getLocalizedString(userAnswer.english, userAnswer.french),
+                    correctAnswer: gameState.getLocalizedString(correctAnswer.english, correctAnswer.french),
+                    context: ""
+                )
+            }
+
+            DispatchQueue.main.async {
+                deepseekFeedback = feedback ?? "Essaie encore! La bonne réponse est affichée ci-dessus."
+                isLoadingFeedback = false
+            }
+        }
+    }
+
+    private func checkIfConfusablePair(userAnswerId: String, correctAnswerId: String) -> Bool {
+        // Get wrapped words to check confusable_with relationship
+        guard let correctWordWrapped = gameViewModel.wrappedWords.first(where: { $0.id == correctAnswerId }) else {
+            return false
+        }
+
+        // Check if userAnswerId is in the confusable_with list
+        return correctWordWrapped.relations.confusable_with.contains { $0.id == userAnswerId }
     }
 }
 

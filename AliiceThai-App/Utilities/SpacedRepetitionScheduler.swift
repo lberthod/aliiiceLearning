@@ -30,7 +30,10 @@ class SpacedRepetitionScheduler: ObservableObject {
             stat.toneAccuracy = Int((Double(currentTone) + (toneCorrect ? 100 : 0)) / 2)
         }
 
-        // Promotion/demotion logic
+        // Apply SM-2 algorithm for adaptive spacing
+        applySM2Algorithm(&stat, isCorrect: isCorrect)
+
+        // Promotion/demotion logic (keep for compatibility)
         stat.leitnerBox = calculateNextBox(
             currentBox: stat.leitnerBox,
             accuracy: stat.accuracy,
@@ -85,6 +88,76 @@ class SpacedRepetitionScheduler: ObservableObject {
             value: box.reviewIntervalDays,
             to: Date()
         ) ?? Date()
+    }
+
+    // MARK: - SM-2 Algorithm Implementation
+    // Based on Supermemo-2 (https://www.supermemo.com/english/ol/sm2.htm)
+
+    private func applySM2Algorithm(_ stat: inout WordStat, isCorrect: Bool) {
+        // Determine quality of response (0-5 scale)
+        // 0 = complete blackout
+        // 1 = incorrect, but correct answer is easy to recall
+        // 2 = incorrect, but correct answer is somewhat easy to recall
+        // 3 = correct answer with serious difficulty
+        // 4 = correct answer after some hesitation
+        // 5 = perfect response
+        let qualityOfResponse = calculateQualityOfResponse(stat: stat, isCorrect: isCorrect)
+
+        if isCorrect && qualityOfResponse >= 3 {
+            // User got it right with acceptable quality - increase interval
+            stat.repetitionCount += 1
+
+            // Calculate new interval
+            if stat.repetitionCount == 1 {
+                stat.intervalDays = 1
+            } else if stat.repetitionCount == 2 {
+                stat.intervalDays = 3
+            } else {
+                stat.intervalDays = Int(Double(stat.intervalDays) * stat.easeFactor)
+            }
+        } else {
+            // User got it wrong or had difficulty - reset repetition count
+            stat.repetitionCount = 0
+            stat.intervalDays = 1
+        }
+
+        // Update ease factor based on SM-2 formula
+        let newEF = stat.easeFactor + (0.1 - (5 - Double(qualityOfResponse)) * (0.08 + (5 - Double(qualityOfResponse)) * 0.02))
+        stat.easeFactor = max(1.3, newEF) // Minimum ease factor is 1.3
+
+        // Update next review date based on SM-2 interval
+        if let nextDate = Calendar.current.date(byAdding: .day, value: stat.intervalDays, to: Date()) {
+            stat.nextReviewDate = nextDate
+        }
+    }
+
+    private func calculateQualityOfResponse(stat: WordStat, isCorrect: Bool) -> Int {
+        guard isCorrect else { return 0 } // Wrong answer = quality 0
+
+        // Quality based on accuracy and tone accuracy if available
+        if let toneAccuracy = stat.toneAccuracy {
+            if toneAccuracy >= 90 {
+                return 5 // Perfect response
+            } else if toneAccuracy >= 70 {
+                return 4 // Correct with minor issues
+            } else if toneAccuracy >= 50 {
+                return 3 // Correct with difficulty
+            } else {
+                return 2 // Technically correct but with issues
+            }
+        } else {
+            // No tone data, base on overall accuracy
+            let accuracy = stat.accuracy
+            if accuracy >= 0.95 {
+                return 5
+            } else if accuracy >= 0.80 {
+                return 4
+            } else if accuracy >= 0.60 {
+                return 3
+            } else {
+                return 2
+            }
+        }
     }
 
     // MARK: - Query Methods

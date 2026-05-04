@@ -1,0 +1,16 @@
+// Config.xcconfig.template - TEMPLATE (safe to commit)
+//
+// ⚠️ INSTRUCTIONS:
+// 1. Copy this file: cp Config.xcconfig.template Config.xcconfig
+// 2. Open Config.xcconfig and add your real API keys
+// 3. Config.xcconfig is in .gitignore and won't be committed
+//
+// GET YOUR API KEYS:
+// - OpenAI: https://platform.openai.com/account/api-keys
+// - Deepseek: https://platform.deepseek.com/api-keys (or your provider)
+
+// OpenAI API Key for Whisper speech-to-text
+OPENAI_API_KEY = sk-YOUR_OPENAI_API_KEY_HERE
+
+// Deepseek API Key for AI feedback generation
+DEEPSEEK_API_KEY = sk-YOUR_DEEPSEEK_API_KEY_HERE

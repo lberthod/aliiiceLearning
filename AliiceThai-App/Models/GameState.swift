@@ -66,6 +66,18 @@ class GameState: ObservableObject {
         }
     }
 
+    // MARK: - Confusable Pairs Tracking (Phase 4)
+    @Published var studiedConfusablePairs: Set<String> = [] {
+        didSet {
+            saveState()
+        }
+    }
+    @Published var wrongAnswersOnConfusablePairs: [String: Int] = [:] {
+        didSet {
+            saveState()
+        }
+    }
+
     private let categoryStarsKey = "categoryStars"
     private let onboardingKey = "hasCompletedOnboarding"
     private let languageKey = "selectedLanguage"
@@ -78,6 +90,8 @@ class GameState: ObservableObject {
     private let classifierAttemptsKey = "classifierAttempts"
     private let outputPracticedWordsKey = "outputPracticedWords"
     private let outputTasksCompletedKey = "outputTasksCompleted"
+    private let studiedConfusablePairsKey = "studiedConfusablePairs"
+    private let wrongAnswersOnConfusablePairsKey = "wrongAnswersOnConfusablePairs"
 
     init() {
         loadState()
@@ -96,6 +110,19 @@ class GameState: ObservableObject {
         UserDefaults.standard.set(outputTasksCompleted, forKey: outputTasksCompletedKey)
         UserDefaults.standard.set(classifierQuizScores, forKey: classifierScoresKey)
         UserDefaults.standard.set(classifierAttempts, forKey: classifierAttemptsKey)
+        UserDefaults.standard.set(Array(studiedConfusablePairs), forKey: studiedConfusablePairsKey)
+        UserDefaults.standard.set(wrongAnswersOnConfusablePairs, forKey: wrongAnswersOnConfusablePairsKey)
+        UserDefaults.standard.set(Array(completedMissions), forKey: completedMissionsKey)
+        UserDefaults.standard.set(missionProgress, forKey: missionProgressKey)
+        UserDefaults.standard.set(totalXP, forKey: totalXPKey)
+
+        // Save challenge data
+        if let challengeData = try? JSONEncoder().encode(currentChallenge) {
+            UserDefaults.standard.set(challengeData, forKey: currentChallengeKey)
+        }
+        UserDefaults.standard.set(streakDays, forKey: streakDaysKey)
+        UserDefaults.standard.set(lastActivityDate, forKey: lastActivityDateKey)
+        UserDefaults.standard.set(completedChallenges, forKey: completedChallengesKey)
     }
 
     func loadState() {
@@ -131,6 +158,38 @@ class GameState: ObservableObject {
         if let savedOutputTasks = UserDefaults.standard.dictionary(forKey: outputTasksCompletedKey) as? [String: Int] {
             outputTasksCompleted = savedOutputTasks
         }
+        if let savedConfusablePairs = UserDefaults.standard.array(forKey: studiedConfusablePairsKey) as? [String] {
+            studiedConfusablePairs = Set(savedConfusablePairs)
+        }
+        if let savedConfusableMistakes = UserDefaults.standard.dictionary(forKey: wrongAnswersOnConfusablePairsKey) as? [String: Int] {
+            wrongAnswersOnConfusablePairs = savedConfusableMistakes
+        }
+        if let savedMissions = UserDefaults.standard.array(forKey: completedMissionsKey) as? [String] {
+            completedMissions = Set(savedMissions)
+        }
+        if let savedProgress = UserDefaults.standard.dictionary(forKey: missionProgressKey) as? [String: Int] {
+            missionProgress = savedProgress
+        }
+        totalXP = UserDefaults.standard.integer(forKey: totalXPKey)
+
+        // Auto-select first uncompleted mission if none selected
+        if currentMission == nil {
+            selectNextMission()
+        }
+
+        // Load challenge data
+        if let challengeData = UserDefaults.standard.data(forKey: currentChallengeKey),
+           let challenge = try? JSONDecoder().decode(Challenge.self, from: challengeData) {
+            currentChallenge = challenge
+        }
+        streakDays = UserDefaults.standard.integer(forKey: streakDaysKey)
+        lastActivityDate = UserDefaults.standard.object(forKey: lastActivityDateKey) as? Date
+        if let saved = UserDefaults.standard.array(forKey: completedChallengesKey) as? [String] {
+            completedChallenges = saved
+        }
+
+        // Initialize daily challenge if needed
+        checkAndResetDailyChallenge()
     }
 
     func addStar() {
@@ -275,6 +334,176 @@ class GameState: ObservableObject {
 
     func getOutputPracticedCount() -> Int {
         return outputPracticedWords.count
+    }
+
+    // MARK: - Confusable Pairs Tracking Methods
+
+    func recordConfusablePairStudy(pairId: String) {
+        studiedConfusablePairs.insert(pairId)
+        saveState()
+    }
+
+    func recordConfusablePairMistake(pairId: String) {
+        let currentCount = wrongAnswersOnConfusablePairs[pairId] ?? 0
+        wrongAnswersOnConfusablePairs[pairId] = currentCount + 1
+        saveState()
+    }
+
+    func isConfusablePairStudied(_ pairId: String) -> Bool {
+        return studiedConfusablePairs.contains(pairId)
+    }
+
+    func getConfusablePairMistakeCount(_ pairId: String) -> Int {
+        return wrongAnswersOnConfusablePairs[pairId] ?? 0
+    }
+
+    func getTotalConfusablePairMistakes() -> Int {
+        return wrongAnswersOnConfusablePairs.values.reduce(0, +)
+    }
+
+    // MARK: - Mission Tracking (Phase 4 Gamification)
+
+    @Published var currentMission: Mission?
+    @Published var completedMissions: Set<String> = [] {
+        didSet {
+            saveState()
+        }
+    }
+    @Published var missionProgress: [String: Int] = [:] {
+        didSet {
+            saveState()
+        }
+    }
+    @Published var totalXP: Int = 0 {
+        didSet {
+            saveState()
+        }
+    }
+
+    // MARK: - Challenge Tracking (Phase 4 Gamification)
+
+    @Published var currentChallenge: Challenge?
+    @Published var streakDays: Int = 0 {
+        didSet {
+            saveState()
+        }
+    }
+    @Published var lastActivityDate: Date?
+    @Published var completedChallenges: [String] = [] {
+        didSet {
+            saveState()
+        }
+    }
+
+    private let currentMissionKey = "currentMission"
+    private let completedMissionsKey = "completedMissions"
+    private let missionProgressKey = "missionProgress"
+    private let totalXPKey = "totalXP"
+    private let currentChallengeKey = "currentChallenge"
+    private let streakDaysKey = "streakDays"
+    private let lastActivityDateKey = "lastActivityDate"
+    private let completedChallengesKey = "completedChallenges"
+
+    func recordMissionProgress(missionId: String) {
+        let current = missionProgress[missionId] ?? 0
+        missionProgress[missionId] = current + 1
+
+        // Check if mission is complete
+        if let mission = Mission.allMissions.first(where: { $0.id == missionId }) {
+            if (missionProgress[missionId] ?? 0) >= mission.targetCount {
+                completeMission(missionId)
+            } else {
+                // Save even if not complete
+                saveState()
+            }
+        }
+    }
+
+    func completeMission(_ missionId: String) {
+        guard !completedMissions.contains(missionId) else { return }
+
+        completedMissions.insert(missionId)
+
+        if let mission = Mission.allMissions.first(where: { $0.id == missionId }) {
+            totalXP += mission.rewardXP
+        }
+
+        // Auto-select next mission
+        selectNextMission()
+        saveState()
+
+        // Log completion for analytics
+        let completionDate = Date()
+        print("✅ Mission completed: \(missionId) at \(completionDate)")
+    }
+
+    func selectNextMission() {
+        currentMission = Mission.getNextMissionAfter(completedMissions)
+    }
+
+    func getMissionProgress(_ missionId: String) -> Int {
+        return missionProgress[missionId] ?? 0
+    }
+
+    func isMissionCompleted(_ missionId: String) -> Bool {
+        return completedMissions.contains(missionId)
+    }
+
+    func getAvailableMissions(for week: Int) -> [Mission] {
+        return Mission.getMissionForWeek(week)
+    }
+
+    // MARK: - Challenge Management Methods
+
+    func checkAndResetDailyChallenge() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+
+        if let lastDate = lastActivityDate {
+            let lastDateStart = calendar.startOfDay(for: lastDate)
+
+            if lastDateStart < today {
+                // New day detected
+                if currentChallenge?.isCompleted == true {
+                    // Challenge was completed yesterday, extend streak
+                    streakDays += 1
+                } else if lastDateStart < calendar.date(byAdding: .day, value: -1, to: today) ?? today {
+                    // Missed a day, reset streak
+                    streakDays = 0
+                }
+
+                // Generate new daily challenge
+                currentChallenge = Challenge.generateDailyChallenge()
+            }
+        } else {
+            // First time, generate initial challenge
+            currentChallenge = Challenge.generateDailyChallenge()
+            streakDays = 1
+        }
+
+        lastActivityDate = Date()
+        saveState()
+    }
+
+    func recordChallengeProgress() {
+        guard var challenge = currentChallenge else { return }
+        challenge.incrementProgress()
+        currentChallenge = challenge
+
+        if challenge.isCompleted {
+            completedChallenges.append(challenge.id)
+        }
+
+        saveState()
+    }
+
+    func isChallengeCompleted() -> Bool {
+        return currentChallenge?.isCompleted ?? false
+    }
+
+    func getChallengeProgress() -> (current: Int, target: Int) {
+        guard let challenge = currentChallenge else { return (0, 0) }
+        return (challenge.progressCount, challenge.targetCount)
     }
 }
 

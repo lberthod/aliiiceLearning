@@ -3,6 +3,7 @@ import SwiftUI
 struct ContextualListeningQuestion {
     let id: String
     let phraseThai: String
+    let phraseRomanized: String
     let phraseEn: String
     let phraseFr: String
     let correctAnswer: String
@@ -13,6 +14,7 @@ struct ContextualListeningQuestion {
             ContextualListeningQuestion(
                 id: "greeting_1",
                 phraseThai: "สวัสดีครับ",
+                phraseRomanized: "sawasdee krap",
                 phraseEn: "Hello (polite)",
                 phraseFr: "Bonjour (poli)",
                 correctAnswer: "Greeting",
@@ -21,6 +23,7 @@ struct ContextualListeningQuestion {
             ContextualListeningQuestion(
                 id: "greeting_2",
                 phraseThai: "ชื่อฉันคือ...",
+                phraseRomanized: "chyue chan khyue...",
                 phraseEn: "My name is...",
                 phraseFr: "Je m'appelle...",
                 correctAnswer: "Introducing yourself",
@@ -29,6 +32,7 @@ struct ContextualListeningQuestion {
             ContextualListeningQuestion(
                 id: "food_1",
                 phraseThai: "ขอน้ำหนึ่งแก้วครับ",
+                phraseRomanized: "kho nam neung gaew krap",
                 phraseEn: "One water please",
                 phraseFr: "Un verre d'eau s'il vous plaît",
                 correctAnswer: "Ordering a drink",
@@ -37,6 +41,7 @@ struct ContextualListeningQuestion {
             ContextualListeningQuestion(
                 id: "direction_1",
                 phraseThai: "ไปตลาดได้ไหม",
+                phraseRomanized: "pai talat dai mai",
                 phraseEn: "Can I go to the market",
                 phraseFr: "Puis-je aller au marché",
                 correctAnswer: "Asking directions",
@@ -45,6 +50,7 @@ struct ContextualListeningQuestion {
             ContextualListeningQuestion(
                 id: "polite_1",
                 phraseThai: "ขอบคุณมากครับ",
+                phraseRomanized: "khop khun mak krap",
                 phraseEn: "Thank you very much",
                 phraseFr: "Merci beaucoup",
                 correctAnswer: "Thanking",
@@ -53,6 +59,7 @@ struct ContextualListeningQuestion {
             ContextualListeningQuestion(
                 id: "price_1",
                 phraseThai: "เท่าไหร่",
+                phraseRomanized: "tao rai",
                 phraseEn: "How much",
                 phraseFr: "Combien",
                 correctAnswer: "Asking price",
@@ -61,6 +68,7 @@ struct ContextualListeningQuestion {
             ContextualListeningQuestion(
                 id: "family_1",
                 phraseThai: "ครอบครัวของฉัน",
+                phraseRomanized: "krob krua khong chan",
                 phraseEn: "My family",
                 phraseFr: "Ma famille",
                 correctAnswer: "Describing family",
@@ -69,6 +77,7 @@ struct ContextualListeningQuestion {
             ContextualListeningQuestion(
                 id: "food_2",
                 phraseThai: "ไม่เผ็ด",
+                phraseRomanized: "mai ped",
                 phraseEn: "Not spicy",
                 phraseFr: "Pas épicé",
                 correctAnswer: "Ordering food",
@@ -116,9 +125,9 @@ struct ContextualListeningView: View {
                             .foregroundColor(.white)
                     }
 
-                    VStack(spacing: 1) {
+                    VStack(spacing: 0) {
                         Text(localization.localize("contextual.listening.title"))
-                            .font(.headline)
+                            .font(.subheadline)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
 
@@ -134,21 +143,22 @@ struct ContextualListeningView: View {
                             .foregroundColor(.white)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 14)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
                 .background(Color.black.opacity(0.08))
 
                 ScrollView {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 10) {
                         // Progress
                         ProgressView(value: Double(questionIndex), total: Double(totalQuestions))
                             .progressViewStyle(LinearProgressViewStyle(tint: Color(red: 1.0, green: 0.75, blue: 0.3)))
-                            .padding(16)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
 
                         // Audio section
-                        VStack(spacing: 15) {
+                        VStack(spacing: 8) {
                             Text(localization.localize("contextual.listening.instruction"))
-                                .font(.caption)
+                                .font(.caption2)
                                 .foregroundColor(.white.opacity(0.8))
 
                             Button {
@@ -156,34 +166,44 @@ struct ContextualListeningView: View {
                                     audioManager.playWord(thaiWord: question.phraseThai)
                                 }
                             } label: {
-                                VStack(spacing: 8) {
+                                VStack(spacing: 4) {
                                     Image(systemName: "speaker.wave.3.fill")
-                                        .font(.system(size: 40))
+                                        .font(.system(size: 32))
                                         .foregroundColor(Color(red: 1.0, green: 0.75, blue: 0.3))
 
                                     Text(localization.localize("contextual.listening.play"))
-                                        .font(.caption)
+                                        .font(.caption2)
                                         .foregroundColor(.white)
                                 }
                                 .frame(maxWidth: .infinity)
-                                .padding()
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 12)
                                 .background(Color.white.opacity(0.1))
-                                .cornerRadius(12)
+                                .cornerRadius(8)
                             }
 
                             if let question = currentQuestion {
-                                Text("(\(question.phraseFr))")
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.7))
-                                    .italic()
+                                VStack(spacing: 3) {
+                                    // Thai text
+                                    Text(question.phraseThai)
+                                        .font(.headline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
+
+                                    // Thai romanization
+                                    Text(question.phraseRomanized)
+                                        .font(.caption2)
+                                        .foregroundColor(.white.opacity(0.7))
+                                        .italic()
+                                }
                             }
                         }
-                        .padding(16)
+                        .padding(10)
                         .background(Color.white.opacity(0.08))
-                        .cornerRadius(12)
+                        .cornerRadius(10)
 
                         // Answer options
-                        VStack(spacing: 10) {
+                        VStack(spacing: 7) {
                             ForEach(currentQuestion?.options ?? [], id: \.self) { option in
                                 AnswerOptionButton(
                                     text: option,
@@ -198,33 +218,36 @@ struct ContextualListeningView: View {
                                 }
                             }
                         }
-                        .padding(16)
+                        .padding(10)
 
                         // Feedback section
                         if showFeedback {
-                            VStack(alignment: .leading, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 8) {
                                 HStack {
                                     Image(systemName: isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                        .font(.title3)
                                         .foregroundColor(isCorrect ? .green : .red)
 
-                                    Text(isCorrect ? "Correct! ✅" : "Try again ❌")
-                                        .font(.headline)
+                                    Text(isCorrect ? "Correct!" : "Try again")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
                                         .foregroundColor(isCorrect ? .green : .red)
                                 }
 
                                 if !isCorrect, let question = currentQuestion {
-                                    VStack(alignment: .leading, spacing: 8) {
+                                    VStack(alignment: .leading, spacing: 4) {
                                         Text(localization.localize("contextual.listening.correct_answer"))
-                                            .font(.caption)
+                                            .font(.caption2)
                                             .foregroundColor(.white.opacity(0.7))
 
                                         Text(question.correctAnswer)
-                                            .font(.body)
+                                            .font(.caption)
                                             .fontWeight(.semibold)
                                             .foregroundColor(.white)
-                                            .padding()
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
                                             .background(Color(red: 1.0, green: 0.75, blue: 0.3).opacity(0.2))
-                                            .cornerRadius(8)
+                                            .cornerRadius(6)
                                     }
                                 }
 
@@ -232,20 +255,21 @@ struct ContextualListeningView: View {
                                     nextQuestion()
                                 }
                                 .frame(maxWidth: .infinity)
-                                .padding()
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 12)
                                 .background(Color(red: 1.0, green: 0.75, blue: 0.3))
                                 .foregroundColor(.black)
-                                .cornerRadius(8)
+                                .cornerRadius(6)
+                                .font(.subheadline)
                                 .fontWeight(.semibold)
                             }
-                            .padding(16)
+                            .padding(10)
                             .background(Color.black.opacity(0.12))
-                            .cornerRadius(12)
+                            .cornerRadius(10)
                         }
 
-                        Spacer()
                     }
-                    .padding(16)
+                    .padding(8)
                 }
             }
         }
@@ -292,15 +316,17 @@ struct AnswerOptionButton: View {
     var body: some View {
         Button(action: action) {
             Text(text)
+                .font(.caption)
                 .frame(maxWidth: .infinity)
-                .padding()
+                .padding(.vertical, 8)
+                .padding(.horizontal, 10)
                 .background(
                     isCorrect ? Color.green.opacity(0.2) :
                     isWrong ? Color.red.opacity(0.2) :
                     isSelected ? Color.cyan.opacity(0.2) :
                     Color.white.opacity(0.1)
                 )
-                .cornerRadius(8)
+                .cornerRadius(6)
         }
         .foregroundColor(
             isCorrect ? .green :

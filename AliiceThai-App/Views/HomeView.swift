@@ -192,7 +192,7 @@ struct LearningHomeView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal)
 
-                        NavigationLink(destination: EmptyView()) {
+                        NavigationLink(destination: TonesView()) {
                             LearningModeCard(
                                 icon: "waveform",
                                 title: "Tone Lessons",
@@ -200,7 +200,7 @@ struct LearningHomeView: View {
                             )
                         }
 
-                        NavigationLink(destination: EmptyView()) {
+                        NavigationLink(destination: ToneQuizLauncherView()) {
                             LearningModeCard(
                                 icon: "music.note.list",
                                 title: "Tone Quiz",
@@ -218,7 +218,7 @@ struct LearningHomeView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal)
 
-                        NavigationLink(destination: EmptyView()) {
+                        NavigationLink(destination: OutputTasksLauncherView()) {
                             LearningModeCard(
                                 icon: "mic.circle",
                                 title: "Speaking Tasks",
@@ -236,7 +236,7 @@ struct LearningHomeView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal)
 
-                        NavigationLink(destination: EmptyView()) {
+                        NavigationLink(destination: ListeningLauncherView()) {
                             LearningModeCard(
                                 icon: "speaker.wave.2",
                                 title: "Listening Practice",
@@ -244,7 +244,7 @@ struct LearningHomeView: View {
                             )
                         }
 
-                        NavigationLink(destination: EmptyView()) {
+                        NavigationLink(destination: ContextualListeningView()) {
                             LearningModeCard(
                                 icon: "text.bubble",
                                 title: "Contextual Listening",
@@ -252,11 +252,37 @@ struct LearningHomeView: View {
                             )
                         }
 
-                        NavigationLink(destination: EmptyView()) {
+                        NavigationLink(destination: AudioDictionaryLauncherView()) {
                             LearningModeCard(
                                 icon: "book.circle",
                                 title: "Audio Dictionary",
                                 description: "Search words, hear variants"
+                            )
+                        }
+                    }
+
+                    // PHASE 4: CONFUSABLE PAIRS
+                    VStack(spacing: 10) {
+                        Text("Phase 4: Advanced Learning")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(Color(red: 1.0, green: 0.75, blue: 0.3))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal)
+
+                        NavigationLink(destination: ConfusablePairsLauncherView()) {
+                            LearningModeCard(
+                                icon: "questionmark.circle",
+                                title: "Confusable Pairs",
+                                description: "Learn words that are easily confused"
+                            )
+                        }
+
+                        NavigationLink(destination: MissionsView()) {
+                            LearningModeCard(
+                                icon: "target",
+                                title: "Missions",
+                                description: "Complete curriculum missions for rewards"
                             )
                         }
                     }
@@ -288,73 +314,121 @@ struct ProgressTabView: View {
             )
             .ignoresSafeArea()
 
-            VStack(spacing: 16) {
-                VStack(spacing: 8) {
-                    Text("My Progress")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
+            ScrollView {
+                VStack(spacing: 16) {
+                    // Active Mission Card
+                    ActiveMissionCard()
 
-                    Text("Track your learning journey")
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.7))
-                }
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.white.opacity(0.1))
-                .cornerRadius(12)
-
-                VStack(spacing: 12) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Current Stars")
-                                .font(.caption)
-                                .foregroundColor(.white.opacity(0.7))
-
-                            Text(String(gameState.currentStars))
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundColor(Color(red: 1.0, green: 0.75, blue: 0.3))
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.white.opacity(0.08))
-                        .cornerRadius(8)
-
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Words Learned")
-                                .font(.caption)
-                                .foregroundColor(.white.opacity(0.7))
-
-                            Text(String(gameState.learnedPhrases.count))
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundColor(Color(red: 1.0, green: 0.75, blue: 0.3))
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.white.opacity(0.08))
-                        .cornerRadius(8)
-                    }
+                    // Daily Challenge Widget
+                    DailyChallengeWidget()
 
                     VStack(spacing: 8) {
-                        Text("📊 Detailed analytics coming soon")
-                            .font(.body)
-                            .foregroundColor(.white)
+                        Text("Progress Metrics")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.orange)
 
-                        Text("• Weekly goals progress\n• Tone accuracy by word\n• Output task completions")
+                        Text("Track your learning journey")
                             .font(.caption)
                             .foregroundColor(.white.opacity(0.7))
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
-                    .background(Color.white.opacity(0.08))
-                    .cornerRadius(8)
-                }
+                    .padding(.horizontal, 12)
 
-                Spacer()
+                    VStack(spacing: 12) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Current Stars")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.7))
+
+                                Text(String(gameState.currentStars))
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(Color(red: 1.0, green: 0.75, blue: 0.3))
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.white.opacity(0.08))
+                            .cornerRadius(8)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Words Learned")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.7))
+
+                                Text(String(gameState.learnedPhrases.count))
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(Color(red: 1.0, green: 0.75, blue: 0.3))
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.white.opacity(0.08))
+                            .cornerRadius(8)
+                        }
+
+                        NavigationLink(destination: AnalyticsDashboard()) {
+                            HStack {
+                                Image(systemName: "chart.bar.fill")
+                                    .foregroundColor(Color(red: 1.0, green: 0.75, blue: 0.3))
+                                    .font(.title3)
+
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("View Full Analytics")
+                                        .font(.body)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
+
+                                    Text("Speaking level, weak areas, due words")
+                                        .font(.caption)
+                                        .foregroundColor(.white.opacity(0.7))
+                                }
+
+                                Spacer()
+
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.white.opacity(0.5))
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding()
+                            .background(Color.white.opacity(0.08))
+                            .cornerRadius(8)
+                        }
+                    }
+
+                    NavigationLink(destination: UserProfileView()) {
+                        HStack {
+                            Image(systemName: "person.circle.fill")
+                                .foregroundColor(Color(red: 1.0, green: 0.75, blue: 0.3))
+                                .font(.title3)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("View Full Profile")
+                                    .font(.body)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+
+                                Text("Complete stats, missions, and achievements")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.7))
+                            }
+
+                            Spacer()
+
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.white.opacity(0.5))
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
+                        .background(Color.white.opacity(0.08))
+                        .cornerRadius(8)
+                    }
+
+                    Spacer(minLength: 20)
+                }
+                .padding(16)
             }
-            .padding(16)
         }
         .navigationTitle("Progress")
         .navigationBarTitleDisplayMode(.inline)

@@ -31,6 +31,8 @@ struct ToneDetectionQuizView: View {
     @State var isCorrect = false
     @State var questionIndex = 0
     @State var correctAnswers = 0
+    @State var deepseekFeedback: String?
+    @State var isLoadingFeedback = false
     let totalQuestions = 10
 
     var toneMarkings: [ToneMarking] {
@@ -130,7 +132,9 @@ struct ToneDetectionQuizView: View {
                                 FeedbackView(
                                     isCorrect: isCorrect,
                                     userChoice: selectedTone ?? "",
-                                    correctTone: question.correctTone
+                                    correctTone: question.correctTone,
+                                    deepseekFeedback: deepseekFeedback,
+                                    isLoadingFeedback: isLoadingFeedback
                                 )
 
                                 Button(questionIndex < totalQuestions - 1 ? localization.localize("tone.detection.next_question") : localization.localize("tone.detection.finish_quiz")) {
@@ -181,6 +185,29 @@ struct ToneDetectionQuizView: View {
         } else {
             gameState.recordToneAttempt(wordId: currentQuestion?.wordId ?? "", isCorrect: false)
             audioManager.playWrongSound()
+            // Fetch Deepseek tone error feedback
+            fetchDeepseekToneFeedback(userChoice: userChoice, correctTone: correctTone)
+        }
+    }
+
+    private func fetchDeepseekToneFeedback(userChoice: String, correctTone: String) {
+        guard let question = currentQuestion else { return }
+
+        isLoadingFeedback = true
+        deepseekFeedback = nil
+
+        Task {
+            let feedback = await DeepseekAPI.shared.getToneErrorFeedback(
+                word: question.word,
+                userSelectedTone: userChoice,
+                correctTone: correctTone,
+                romanization: question.toneMarking.romanizationTone
+            )
+
+            DispatchQueue.main.async {
+                deepseekFeedback = feedback ?? "Écoute attentivement la différence entre ces deux tons!"
+                isLoadingFeedback = false
+            }
         }
     }
 
@@ -276,6 +303,8 @@ struct FeedbackView: View {
     let isCorrect: Bool
     let userChoice: String
     let correctTone: String
+    let deepseekFeedback: String?
+    let isLoadingFeedback: Bool
     @ObservedObject var localization = LocalizationManager.shared
 
     var body: some View {
@@ -307,6 +336,31 @@ struct FeedbackView: View {
                         .padding(8)
                         .background(Color(red: 1.0, green: 0.6, blue: 0.2))
                         .cornerRadius(4)
+                }
+
+                // Deepseek Feedback
+                if isLoadingFeedback {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                            .frame(width: 14, height: 14)
+                        Text("Analyzing...")
+                            .font(.caption)
+                            .foregroundColor(.black.opacity(0.7))
+                    }
+                } else if let feedback = deepseekFeedback {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("💡 Conseil:")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(Color(red: 1.0, green: 0.6, blue: 0.2))
+                        Text(feedback)
+                            .font(.caption)
+                            .foregroundColor(.black)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(8)
+                    .background(Color.white.opacity(0.6))
+                    .cornerRadius(4)
                 }
             }
 

@@ -31,7 +31,7 @@ struct TonesView: View {
                 HeaderView(
                     title: localization.localize("tone.mastery.title"),
                     subtitle: localization.localize("tone.mastery.subtitle"),
-                    showBackButton: false,
+                    showBackButton: true,
                     showHomeButton: true
                 )
 

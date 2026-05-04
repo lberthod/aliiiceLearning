@@ -11,6 +11,11 @@ struct WordStat: Identifiable, Codable {
     var confidence: Int = 0 // 1-10 self-reported
     var toneAccuracy: Int? // 0-100%
 
+    // SM-2 Algorithm fields
+    var easeFactor: Double = 2.5 // Starts at 2.5, adjusted based on performance
+    var intervalDays: Int = 1 // Days until next review
+    var repetitionCount: Int = 0 // Number of successful reviews
+
     // Computed properties
     var accuracy: Double {
         guard attemptedCount > 0 else { return 0 }
